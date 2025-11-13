@@ -1,0 +1,19 @@
+# epoll-echo-udp.socket
+# Purpose: Socket-activate the UDP datagram endpoint for epoll-echo so that
+# systemd holds the bound port and hands it to the daemon via sd_listen_fds().
+# Notes: Mirrors the TCP socket defaults (port/backlog not applicable) and
+# shares the same activated service.
+
+[Unit]
+Description=epoll-echo UDP socket (dual-stack datagram)
+Documentation=file:/usr/share/doc/epoll-echo/README.md
+PartOf=epoll-echo-activated.service
+
+[Socket]
+ListenDatagram=12345
+BindIPv6Only=both
+Service=epoll-echo-activated.service
+Accept=no
+
+[Install]
+WantedBy=sockets.target

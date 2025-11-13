@@ -1,0 +1,5 @@
+epoll-echo (0.1.0) unstable; urgency=medium
+
+  * Initial release of the single-process TCP/UDP epoll echo server.
+
+ -- Shalom Arhebamen <arhebs@outlook.com>  Wed, 13 Nov 2024 18:10:09 +0300

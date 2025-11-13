@@ -1,0 +1,20 @@
+# epoll-echo.socket
+# Purpose: Socket-activate the TCP listener for epoll-echo so that systemd
+# accepts new connections even when the service binary is not running yet.
+# Key behaviors: dual-stack IPv6/IPv4 via BindIPv6Only=both, shared backlog
+# matching the CLI default, and explicit Service= mapping to the activated unit.
+
+[Unit]
+Description=epoll-echo TCP socket (dual-stack stream)
+Documentation=file:/usr/share/doc/epoll-echo/README.md
+PartOf=epoll-echo-activated.service
+
+[Socket]
+ListenStream=12345
+BindIPv6Only=both
+Backlog=128
+Service=epoll-echo-activated.service
+Accept=no
+
+[Install]
+WantedBy=sockets.target

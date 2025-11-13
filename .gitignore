@@ -1,0 +1,16 @@
+# Build artifacts
+/epoll-echo
+*.o
+*.d
+*.su
+*.gcno
+*.gcda
+/.idea/
+/build/
+# Debian package outputs (kept in repo root for convenience)
+/epoll-echo_*.deb
+/epoll-echo_*.dsc
+/epoll-echo_*.tar.*
+/epoll-echo_*.buildinfo
+/epoll-echo_*.changes
+/epoll-echo-dbgsym_*.ddeb

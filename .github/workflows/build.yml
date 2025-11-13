@@ -1,0 +1,82 @@
+name: epoll-echo CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build-test-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            pkg-config \
+            libsystemd-dev \
+            debhelper \
+            devscripts \
+            netcat-openbsd \
+            socat \
+            systemd
+
+      - name: Build epoll-echo with systemd support
+        env:
+          ENABLE_SYSTEMD: "1"
+        run: |
+          make -j"$(nproc)" ENABLE_SYSTEMD=1
+
+      - name: Run integration tests
+        run: |
+          set -euo pipefail
+          ./tests/dualstack.sh
+          ./tests/framing.sh
+          ./tests/overflow.sh
+          ./tests/sigpipe.sh
+          ./tests/udp_trunc.sh
+          ./tests/stats_window.sh
+          ./tests/shutdown.sh
+
+      - name: Run socket activation test
+        run: |
+          set -euo pipefail
+          ./tests/socket_activation.sh
+
+      - name: Build Debian package
+        run: |
+          make clean
+          make deb
+
+      - name: Collect build artifacts
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          # Binary
+          if [ -x epoll-echo ]; then
+            cp epoll-echo artifacts/
+          fi
+          # Debian packaging artifacts produced by `make deb`
+          find . -maxdepth 1 -type f \( \
+            -name 'epoll-echo_*.deb' -o \
+            -name 'epoll-echo_*.dsc' -o \
+            -name 'epoll-echo_*.changes' -o \
+            -name 'epoll-echo_*.buildinfo' -o \
+            -name 'epoll-echo_*.tar.*' -o \
+            -name 'epoll-echo-dbgsym_*.ddeb' \
+          \) -print -exec cp {} artifacts/ \; || true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: epoll-echo-artifacts
+          path: artifacts

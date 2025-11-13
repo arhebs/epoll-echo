@@ -1,0 +1,26 @@
+# epoll-echo-activated.service
+# Purpose: Socket-activated variant of epoll-echo that adopts TCP and UDP
+# sockets from systemd using sd_listen_fds(). Keeps CLI flag plumbing identical
+# to the standalone service while documenting credential + limit knobs.
+
+[Unit]
+Description=epoll-echo daemon (socket-activated)
+Documentation=file:/usr/share/doc/epoll-echo/README.md
+Requires=epoll-echo.socket epoll-echo-udp.socket
+After=network-online.target
+
+[Service]
+Type=simple
+Environment="EPOLL_ECHO_FLAGS=--port 12345"
+EnvironmentFile=-/etc/default/epoll-echo
+ExecStart=/usr/bin/epoll-echo $EPOLL_ECHO_FLAGS
+Restart=on-failure
+RestartSec=2s
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+LimitNOFILE=8192
+Sockets=epoll-echo.socket epoll-echo-udp.socket
+# Uncomment to deliver the /shutdown credential via systemd
+# LoadCredential=shutdown.token:/etc/epoll-echo/shutdown.token

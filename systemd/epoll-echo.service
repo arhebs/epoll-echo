@@ -1,0 +1,31 @@
+# epoll-echo.service
+# Purpose: Simple systemd unit for running the epoll-echo daemon under journald
+# logging with optional credential provisioning for /shutdown tokens.
+# Key dependencies: /usr/bin/epoll-echo binary, systemd LoadCredential support,
+# and sufficient file descriptors for the configured TCP concurrency cap.
+
+[Unit]
+Description=epoll-echo TCP/UDP echo daemon
+Documentation=file:/usr/share/doc/epoll-echo/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment="EPOLL_ECHO_FLAGS=--port 12345"
+EnvironmentFile=-/etc/default/epoll-echo
+ExecStart=/usr/bin/epoll-echo $EPOLL_ECHO_FLAGS
+Restart=on-failure
+RestartSec=2s
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+# Raise the soft/hard descriptor cap to leave headroom for listeners + clients.
+LimitNOFILE=8192
+# Provide the administrative /shutdown token via systemd credentials by
+# uncommenting the directive below and pointing it at a root-owned 0600 file.
+# LoadCredential=shutdown.token:/etc/epoll-echo/shutdown.token
+
+[Install]
+WantedBy=multi-user.target

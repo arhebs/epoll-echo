@@ -1,0 +1,18 @@
+Source: epoll-echo
+Section: net
+Priority: optional
+Maintainer: Shalom Arhebamen <arhebs@outlook.com>
+Build-Depends: debhelper-compat (= 13), pkg-config, libsystemd-dev
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/arhebs/epoll-echo
+
+Package: epoll-echo
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Single-process TCP/UDP echo server built on epoll
+ epoll-echo provides a single-process daemon that concurrently
+ handles TCP line clients and UDP datagrams using the Linux epoll
+ API. It includes guarded administrative commands, journald-friendly
+ logging, and optional systemd socket activation support, making it
+ a handy example and diagnostic tool for modern networking stacks.
